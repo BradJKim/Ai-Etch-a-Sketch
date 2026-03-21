@@ -4,7 +4,7 @@ from enum import Enum, auto
 from fileHandler import FileHandler
 from LLMController import LLMController
 from KeyboardController import KeyboardController
-
+from LCDController import LCDController
 
 class PageState(Enum):
     INPUT_DISPLAY = auto()
@@ -14,10 +14,12 @@ def main():
     input_file_handler = FileHandler('input.txt')
     output_file_handler = FileHandler('output.txt')
     llm_controller = LLMController(input_file_handler, output_file_handler)
+    lcd_controller = LCDController()
     keyboard_controller = KeyboardController()
     
     pageState = PageState.INPUT_DISPLAY
     resSignal = True
+    disSignal = True
     position = 0
             
     
@@ -62,12 +64,15 @@ def main():
         updatePageState(PageState.OUTPUT_DISPLAY)
         resSignal = llm_controller.prompt()
         resetPosition()
-        
+
+    def updateScreenDisplay(displayMode):
+        nonlocal disSignal
+        disSignal = lcd_controller.displayScreen(displayMode)
         
     """ MAIN """
     
     init()
-    while resSignal:
+    while resSignal and disSignal:
         key = keyboard_controller.grabInputChar()
         
         match pageState:
@@ -81,8 +86,17 @@ def main():
                     case _                      : writeToInputAt(position, key)
             case PageState.OUTPUT_DISPLAY:
                 match key:
-                    case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY) # ENTER key
-                
+                    case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY)
+                    case readchar.key.UP        : print("up") 
+                    case readchar.key.UP        : print("down") 
+
+        match pageState:
+            case PageState.INPUT_DISPLAY:
+                updateScreenDisplay("INPUT")
+            case PageState.OUTPUT_DISPLAY: 
+                updateScreenDisplay("OUTPUT")
+
+            
     print("App terminated")
         
         

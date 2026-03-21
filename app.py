@@ -1,7 +1,7 @@
 import readchar
 from enum import Enum, auto
 
-from fileHandler import FileHandler
+from FileHandler import FileHandler
 from LLMController import LLMController
 from KeyboardController import KeyboardController
 from LCDController import LCDController
@@ -14,7 +14,7 @@ def main():
     input_file_handler = FileHandler('input.txt')
     output_file_handler = FileHandler('output.txt')
     llm_controller = LLMController(input_file_handler, output_file_handler)
-    lcd_controller = LCDController()
+    lcd_controller = LCDController(input_file_handler, output_file_handler)
     keyboard_controller = KeyboardController()
     
     pageState = PageState.INPUT_DISPLAY

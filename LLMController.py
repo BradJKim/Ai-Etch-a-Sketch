@@ -1,4 +1,4 @@
-from fileHandler import FileHandler
+from FileHandler import FileHandler
 import ollama
 
 
@@ -30,11 +30,10 @@ class LLMController:
             )
 
             output_text = response["message"]["content"].strip()
-
+            
             self.output_file_handler.clearFile()
             self.output_file_handler.appendToFile(output_text)
 
-            print(output_text)
             return True
 
         except Exception as e:

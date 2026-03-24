@@ -2,8 +2,7 @@ import readchar
 
 class KeyboardController:
     def __init__(self):
-        # TODO: manage keyboard device calls here
-        self.device = ""
+        pass
     
     def grabInputChar (self):
         try:

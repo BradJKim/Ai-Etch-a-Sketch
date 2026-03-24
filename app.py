@@ -72,28 +72,29 @@ def main():
     """ MAIN """
     
     init()
+    
     while resSignal and disSignal:
         key = keyboard_controller.grabInputChar()
-        
+                
         match pageState:
             case PageState.INPUT_DISPLAY:
                 match key:
                     case readchar.key.RIGHT     : updatePosition("RIGHT")
                     case readchar.key.LEFT      : updatePosition("LEFT")
-                    case readchar.key.ENTER     : handleEnterInput()
+                    case readchar.key.ENTER                   : handleEnterInput()
                     case readchar.key.BACKSPACE : deleteInputCharAt(position - 1)
                     case readchar.key.SPACE     : writeToInputAt(position, " ")
                     case _                      : writeToInputAt(position, key)
             case PageState.OUTPUT_DISPLAY:
                 match key:
                     case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY)
-                    case readchar.key.UP        : print("up") 
-                    case readchar.key.UP        : print("down") 
+                    case readchar.key.UP        : print("up")
+                    case readchar.key.DOWN        : print("down")
 
         match pageState:
             case PageState.INPUT_DISPLAY:
                 updateScreenDisplay("INPUT")
-            case PageState.OUTPUT_DISPLAY: 
+            case PageState.OUTPUT_DISPLAY:
                 updateScreenDisplay("OUTPUT")
 
             

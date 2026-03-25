@@ -185,23 +185,13 @@ def render_text(text, char_index):
 
         if i == cursor_line:
             x = get_cursor_x(draw, line, font, cursor_col, padding)
-            draw_cursor(draw, line, font, cursor_col, padding, y, line_height)
+            draw_cursor(draw, x, y, line_height)
+
         y += line_height
 
     return img
 
-def draw_cursor(draw, line, font, col, padding, y, line_height):
-    if col > 0:
-        # Measure width of all characters up to col-1
-        x = padding + sum(draw.textlength(c, font=font) for c in line[:col])
-    else:
-        x = padding
-
-    # If cursor is at the end of the line and last char is space
-    if col >= len(line) or (line and line[col-1] == " "):
-        # Force the cursor to advance by a fixed space width
-        x += draw.textlength(" ", font=font)
-
+def draw_cursor(draw, x, y, line_height):
     draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)
 
 def get_cursor_x(draw, line, font, col, padding):

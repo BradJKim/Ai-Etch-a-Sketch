@@ -10,8 +10,8 @@ RST_PIN  = 25
 BL_PIN   = 18   # backlight, may vary — try 18 or 27
 
 # --- Display config ---
-WIDTH    = 480
-HEIGHT   = 320
+WIDTH    = 320
+HEIGHT   = 480
 SPI_BUS  = 0
 SPI_DEV  = 0
 SPI_MHZ  = 16
@@ -64,7 +64,7 @@ def init_display():
     send_cmd(0x11)  # sleep out
     time.sleep(0.12)
     send_cmd(0x3A); send_data(0x55)   # pixel format: 16bit RGB565
-    send_cmd(0x36); send_data(0x28)   # memory access control (landscape)
+    send_cmd(0x36); send_data(0x48)   # memory access control (landscape)
     send_cmd(0x11)  # sleep out
     send_cmd(0x29)  # display on
     lgpio.gpio_write(h, BL_PIN, 1)    # backlight on
@@ -86,6 +86,31 @@ def display_image(img):
         pixels.append(color & 0xFF)
     set_window(0, 0, WIDTH - 1, HEIGHT - 1)
     send_data(pixels)
+    
+def wrap_text(draw, text, font, max_width):
+    lines = []
+    for paragraph in text.split("\n"):
+        words = paragraph.split(" ")
+        current_line = ""
+
+        for word in words:
+            test_line = current_line + (" " if current_line else "") + word
+            bbox = draw.textbbox((0, 0), test_line, font=font)
+            line_width = bbox[2] - bbox[0]
+
+            if line_width <= max_width:
+                current_line = test_line
+            else:
+                if current_line:
+                    lines.append(current_line)
+                current_line = word
+
+        if current_line:
+            lines.append(current_line)
+        else:
+            lines.append("")
+
+    return lines
 
 def render_text(text):
     img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
@@ -99,12 +124,9 @@ def render_text(text):
 
     padding = 12
     line_height = 26
-    chars_per_line = (WIDTH - 2 * padding) // 12
 
-    lines = []
-    for para in text.strip().split("\n"):
-        wrapped = textwrap.wrap(para, width=chars_per_line)
-        lines += wrapped if wrapped else [""]
+    max_width = WIDTH - 2 * padding
+    lines = wrap_text(draw, text.strip(), font, max_width)
 
     y = padding
     for line in lines:

@@ -204,10 +204,15 @@ def draw_cursor(draw, x, y, line_height):
 def get_cursor_x(draw, line, font, col, padding):
     if col == 0:
         return padding
+
     text = line[:col]
+    x = draw.textlength(text, font=font)
+
     if col == len(line) and line.endswith(" "):
-        text += " "
-    return padding + draw.textlength(text, font=font)
+        space_width = draw.textlength(" ", font=font)
+        x += space_width
+
+    return padding + x
 
 def get_cursor_pos(lines, char_index):
     count = 0

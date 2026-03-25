@@ -23,7 +23,7 @@ def main():
     startup = True
     position = 0
     
-    MAX_VIEW = 17
+    MAX_VIEW = 20
     viewWindow = [0, MAX_VIEW]
             
     

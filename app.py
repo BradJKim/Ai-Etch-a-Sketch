@@ -62,8 +62,8 @@ def main():
         incrementPosition()
         
     def deleteInputCharAt(pos):
-        decrementPosition()
         input_file_handler.deleteCharAt(pos)
+        decrementPosition()
         
     def handleEnterInput():
         nonlocal resSignal
@@ -114,7 +114,7 @@ def main():
                     case readchar.key.RIGHT     : updatePosition("RIGHT")
                     case readchar.key.LEFT      : updatePosition("LEFT")
                     case readchar.key.ENTER     : handleEnterInput()
-                    case readchar.key.BACKSPACE : deleteInputCharAt(position)
+                    case readchar.key.BACKSPACE : deleteInputCharAt(position - 1)
                     case readchar.key.SPACE     : writeToInputAt(position, " ")
                     case _                      : writeToInputAt(position, key)
             case PageState.OUTPUT_DISPLAY:

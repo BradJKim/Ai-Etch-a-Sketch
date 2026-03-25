@@ -209,6 +209,9 @@ def get_cursor_x(draw, line, font, col, padding):
     return x
 
 def get_cursor_pos(lines, char_index):
+    if not lines:
+        return 0, 0
+    
     count = 0
     for i, line in enumerate(lines):
         if char_index <= count + len(line):

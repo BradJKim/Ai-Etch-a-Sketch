@@ -149,20 +149,6 @@ def render_text(text):
 init_display()
 
 while True:
-    init_display()
-
-    # fill entire screen red
-    def fill_color(r, g, b):
-        color = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
-        high = color >> 8
-        low  = color & 0xFF
-        pixels = [high, low] * (WIDTH * HEIGHT)
-        set_window(0, 0, WIDTH - 1, HEIGHT - 1)
-        send_data(pixels)
-
-    fill_color(255, 0, 0)   # solid red
-    time.sleep(3)
-    fill_color(0, 255, 0)   # solid green
-    time.sleep(3)
-    fill_color(0, 0, 255)   # solid blue
-    time.sleep(3)
+    img = render_text(TEXT)
+    display_image(img)
+    time.sleep(10)

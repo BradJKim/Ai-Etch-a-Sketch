@@ -202,17 +202,12 @@ def draw_cursor(draw, x, y, line_height):
     draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)
 
 def get_cursor_x(draw, line, font, col, padding):
-    if col == 0:
-        return padding
-
-    text = line[:col]
-    x = draw.textlength(text, font=font)
-
-    if col == len(line) and line.endswith(" "):
-        space_width = draw.textlength(" ", font=font)
-        x += space_width
-
-    return padding + x
+        x = padding
+        for i in range(col):
+            char = line[i]
+            char_width = draw.textlength(char, font=font)
+            x += char_width
+        return x
 
 def get_cursor_pos(lines, char_index):
     count = 0

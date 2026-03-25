@@ -67,7 +67,7 @@ def main():
 
     def updateScreenDisplay(displayMode):
         nonlocal disSignal
-        disSignal = lcd_controller.displayScreen(displayMode)
+        disSignal = lcd_controller.displayScreen(displayMode, position)
         
     """ MAIN """
     

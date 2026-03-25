@@ -37,13 +37,14 @@ class LCDController:
     def __init__(self, input_file_handler, output_file_handler):
         self.input_file_handler = input_file_handler
         self.output_file_handler = output_file_handler
+        self.maxLines = 0
         init_display()
 
-    def writeToScreen(self, text, position):
-        img = render_text(text, position)
+    def writeToScreen(self, text, position, viewWindow):
+        img = self.render_text(text, position, viewWindow)
         display_image(img)
 
-    def displayScreen(self, displayMode, position):
+    def displayScreen(self, displayMode, position, viewWindow):
         try:
             if displayMode not in [m.value for m in DisplayMode]:
                 raise ValueError(f"Invalid mode '{displayMode}'. Choose from: {DisplayMode}")
@@ -53,13 +54,49 @@ class LCDController:
             elif displayMode == DisplayMode.OUTPUT.value:
                 displayText = self.output_file_handler.readFile()
 
-            self.writeToScreen(displayText, position)
+            self.writeToScreen(displayText, position, viewWindow)
             
             
             return True
         except Exception as e:
             print("LCD Controller Error: ", e)
             return False
+        
+    def render_text(self, text, char_index, viewWindow):
+        img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
+        draw = ImageDraw.Draw(img)
+
+        try:
+            font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
+        except:
+            font = ImageFont.load_default()
+
+        padding = 12
+        bbox = font.getbbox("Ay")
+        line_height = (bbox[3] - bbox[1]) + 4
+
+        max_width = WIDTH - 2 * padding
+        lines = wrap_text(draw, text.strip(), font, max_width)
+        self.maxLines = len(lines)
+
+        lines = lines[viewWindow[0]: viewWindow[1]]
+
+        cursor_line, cursor_col = get_cursor_pos(lines, char_index)
+
+        y = padding
+        for i, line in enumerate(lines):
+            if y + line_height > HEIGHT - padding:
+                break
+            draw.text((padding, y), line, font=font, fill=(255, 255, 255))
+
+            if i == cursor_line:
+                x = get_cursor_x(draw, line, font, cursor_col, padding)
+                draw_cursor(draw, x, y, line_height)
+
+            y += line_height
+
+        return img
 
 def reset():
     lgpio.gpio_write(h, RST_PIN, 1)
@@ -157,39 +194,6 @@ def wrap_text(draw, text, font, max_width):
             lines.append(current_line)
 
     return lines
-
-def render_text(text, char_index):
-    img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
-    draw = ImageDraw.Draw(img)
-
-    try:
-        font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
-    except:
-        font = ImageFont.load_default()
-
-    padding = 12
-    bbox = font.getbbox("Ay")
-    line_height = (bbox[3] - bbox[1]) + 4
-
-    max_width = WIDTH - 2 * padding
-    lines = wrap_text(draw, text.strip(), font, max_width)
-
-    cursor_line, cursor_col = get_cursor_pos(lines, char_index)
-
-    y = padding
-    for i, line in enumerate(lines):
-        if y + line_height > HEIGHT - padding:
-            break
-        draw.text((padding, y), line, font=font, fill=(255, 255, 255))
-
-        if i == cursor_line:
-            x = get_cursor_x(draw, line, font, cursor_col, padding)
-            draw_cursor(draw, x, y, line_height)
-
-        y += line_height
-
-    return img
 
 def draw_cursor(draw, x, y, line_height):
     draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)

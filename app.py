@@ -20,8 +20,9 @@ def main():
     pageState = PageState.INPUT_DISPLAY
     resSignal = True
     disSignal = True
-    position = 0
     startup = True
+    position = 0
+    viewWindow = [0, 29]
             
     
     """ FUNCTIONS """
@@ -68,10 +69,20 @@ def main():
         resSignal = llm_controller.prompt()
         resetPosition()
 
-    def updateScreenDisplay(displayMode):
+    def updateScreenDisplay(displayMode, viewWindow):
         nonlocal disSignal
-        disSignal = lcd_controller.displayScreen(displayMode, position)
+        disSignal = lcd_controller.displayScreen(displayMode, position, viewWindow)
         
+    def incrementViewWindow():
+        nonlocal viewWindow
+        if viewWindow[1] < lcd_controller.maxLines:
+            viewWindow = [viewWindow[0]+1, viewWindow[1]+1]
+
+    def decrementViewWindow():
+        nonlocal viewWindow
+        if viewWindow[0] > 0:
+            viewWindow = [viewWindow[0]-1, viewWindow[1]-1]
+            
     """ MAIN """
     
     init()
@@ -95,14 +106,14 @@ def main():
             case PageState.OUTPUT_DISPLAY:
                 match key:
                     case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY)
-                    case readchar.key.UP        : print("up")
-                    case readchar.key.DOWN      : print("down")
+                    case readchar.key.UP        : incrementViewWindow()
+                    case readchar.key.DOWN      : decrementViewWindow()
 
         match pageState:
             case PageState.INPUT_DISPLAY:
-                updateScreenDisplay("INPUT")
+                updateScreenDisplay("INPUT", viewWindow)
             case PageState.OUTPUT_DISPLAY:
-                updateScreenDisplay("OUTPUT")
+                updateScreenDisplay("OUTPUT", viewWindow)
 
             
     print("App terminated")

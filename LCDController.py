@@ -1,4 +1,5 @@
 from enum import Enum
+import re
 import spidev
 import lgpio
 import time
@@ -114,7 +115,7 @@ def wrap_text(draw, text, font, max_width):
     lines = []
 
     for paragraph in text.split("\n"):
-        words = paragraph.split(" ")
+        words = re.findall(r'\S+\s*', paragraph)
         current_line = ""
 
         for word in words:

@@ -58,12 +58,12 @@ def main():
             case 'LEFT': decrementPosition()
 
     def writeToInputAt(pos, text):
-        incrementPosition()
         input_file_handler.appendToFile(text, pos, False)
+        incrementPosition()
         
     def deleteInputCharAt(pos):
-        input_file_handler.deleteCharAt(pos)
         decrementPosition()
+        input_file_handler.deleteCharAt(pos)
         
     def handleEnterInput():
         nonlocal resSignal

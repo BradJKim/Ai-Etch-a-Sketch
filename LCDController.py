@@ -1,5 +1,4 @@
 from enum import Enum
-import re
 import spidev
 import lgpio
 import time
@@ -115,7 +114,7 @@ def wrap_text(draw, text, font, max_width):
     lines = []
 
     for paragraph in text.split("\n"):
-        words = re.findall(r'\S+\s*', paragraph)
+        words = paragraph.split(" ")
         current_line = ""
 
         for word in words:
@@ -203,13 +202,19 @@ def draw_cursor(draw, x, y, line_height):
     draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)
 
 def get_cursor_x(draw, line, font, col, padding):
-    return padding + draw.textlength(line[:col], font=font)
+    if col == 0:
+        return padding
+    text = line[:col]
+    if col == len(line) and line.endswith(" "):
+        text += " "
+    return padding + draw.textlength(text, font=font)
 
 def get_cursor_pos(lines, char_index):
     count = 0
     for i, line in enumerate(lines):
         if char_index <= count + len(line):
             col = char_index - count
+            col = min(col, len(line))
             return i, col
         count += len(line)
     return len(lines) - 1, len(lines[-1])

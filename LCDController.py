@@ -122,7 +122,12 @@ def wrap_text(draw, text, font, max_width):
             word_width = bbox[2] - bbox[0]
 
             if word_width > max_width:
-                # Break the word into chunks
+                # First, flush any existing line
+                if current_line:
+                    lines.append(current_line)
+                    current_line = ""
+
+                # Now break the long word
                 chunk = ""
                 for char in word:
                     test_chunk = chunk + char
@@ -132,14 +137,12 @@ def wrap_text(draw, text, font, max_width):
                     if chunk_width <= max_width:
                         chunk = test_chunk
                     else:
-                        if chunk:
-                            lines.append(chunk)
+                        lines.append(chunk)
                         chunk = char
 
                 if chunk:
                     lines.append(chunk)
 
-                current_line = ""
                 continue
 
             # Normal word wrapping

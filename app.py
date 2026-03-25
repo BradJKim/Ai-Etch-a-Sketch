@@ -73,12 +73,13 @@ def main():
         nonlocal disSignal
         disSignal = lcd_controller.displayScreen(displayMode, position, viewWindow)
         
-    def incrementViewWindow():
+    def decrementViewWindow():
         nonlocal viewWindow
         if viewWindow[1] < lcd_controller.maxLines:
             viewWindow = [viewWindow[0]+1, viewWindow[1]+1]
+            print("inc")
 
-    def decrementViewWindow():
+    def incrementViewWindow():
         nonlocal viewWindow
         if viewWindow[0] > 0:
             viewWindow = [viewWindow[0]-1, viewWindow[1]-1]

@@ -18,7 +18,7 @@ class LLMController:
                 "If you are unsure, say you are unsure instead of making things up."
             )
 
-            response = ollama.chat(
+            """ response = ollama.chat(
                 model="qwen2.5:7b-instruct",
                 messages=[
                     {"role": "system", "content": system_instructions},
@@ -27,9 +27,10 @@ class LLMController:
                 options={
                     "temperature": 0
                 }
-            )
+            ) """
 
-            output_text = response["message"]["content"].strip()
+            # output_text = response["message"]["content"].strip()
+            output_text = input_text
             
             self.output_file_handler.clearFile()
             self.output_file_handler.appendToFile(output_text)

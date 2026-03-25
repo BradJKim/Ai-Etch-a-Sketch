@@ -30,7 +30,7 @@ def main():
     def init():
         input_file_handler.clearFile()
         input_file_handler.appendToFile("Ask a question:", position, False)
-        updateScreenDisplay("INPUT")
+        updateScreenDisplay("INPUT", viewWindow)
         output_file_handler.clearFile()
     
     def updatePageState(state):

@@ -58,8 +58,8 @@ def main():
             case 'LEFT': decrementPosition()
 
     def writeToInputAt(pos, text):
-        input_file_handler.appendToFile(text, pos, False)
         incrementPosition()
+        input_file_handler.appendToFile(text, pos, False)
         
     def deleteInputCharAt(pos):
         input_file_handler.deleteCharAt(pos)
@@ -114,7 +114,7 @@ def main():
                     case readchar.key.RIGHT     : updatePosition("RIGHT")
                     case readchar.key.LEFT      : updatePosition("LEFT")
                     case readchar.key.ENTER     : handleEnterInput()
-                    case readchar.key.BACKSPACE : deleteInputCharAt(position - 1)
+                    case readchar.key.BACKSPACE : deleteInputCharAt(position)
                     case readchar.key.SPACE     : writeToInputAt(position, " ")
                     case _                      : writeToInputAt(position, key)
             case PageState.OUTPUT_DISPLAY:

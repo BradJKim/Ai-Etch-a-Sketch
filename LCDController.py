@@ -197,7 +197,11 @@ def draw_cursor(draw, x, y, line_height):
 def get_cursor_x(draw, line, font, col, padding):
     x = padding
     for i in range(min(col, len(line))):
-        x += draw.textlength(line[i], font=font)
+        char = line[i]
+        if char == " ":
+            x += draw.textlength(" ", font=font)
+        else:
+            x += draw.textlength(char, font=font)
     return x
 
 def get_cursor_pos(lines, char_index):

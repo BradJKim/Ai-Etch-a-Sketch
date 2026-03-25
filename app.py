@@ -21,12 +21,14 @@ def main():
     resSignal = True
     disSignal = True
     position = 0
+    startup = True
             
     
     """ FUNCTIONS """
     
     def init():
         input_file_handler.clearFile()
+        input_file_handler.appendToFile("Ask a question:", position, False)
         output_file_handler.clearFile()
     
     def updatePageState(state):
@@ -75,6 +77,10 @@ def main():
     
     while resSignal and disSignal:
         key = keyboard_controller.grabInputChar()
+        
+        if startup:
+            input_file_handler.clearFile()
+            startup = False
                 
         match pageState:
             case PageState.INPUT_DISPLAY:

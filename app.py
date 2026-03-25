@@ -29,6 +29,7 @@ def main():
     def init():
         input_file_handler.clearFile()
         input_file_handler.appendToFile("Ask a question:", position, False)
+        updateScreenDisplay("INPUT")
         output_file_handler.clearFile()
     
     def updatePageState(state):
@@ -87,7 +88,7 @@ def main():
                 match key:
                     case readchar.key.RIGHT     : updatePosition("RIGHT")
                     case readchar.key.LEFT      : updatePosition("LEFT")
-                    case readchar.key.ENTER                   : handleEnterInput()
+                    case readchar.key.ENTER     : handleEnterInput()
                     case readchar.key.BACKSPACE : deleteInputCharAt(position - 1)
                     case readchar.key.SPACE     : writeToInputAt(position, " ")
                     case _                      : writeToInputAt(position, key)
@@ -95,7 +96,7 @@ def main():
                 match key:
                     case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY)
                     case readchar.key.UP        : print("up")
-                    case readchar.key.DOWN        : print("down")
+                    case readchar.key.DOWN      : print("down")
 
         match pageState:
             case PageState.INPUT_DISPLAY:

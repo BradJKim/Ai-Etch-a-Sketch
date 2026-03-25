@@ -2,6 +2,7 @@ from enum import Enum
 import spidev
 import lgpio
 import time
+import re
 from PIL import Image, ImageDraw, ImageFont
 
 # --- Pin config (BCM numbering) ---
@@ -14,7 +15,7 @@ WIDTH    = 320
 HEIGHT   = 480
 SPI_BUS  = 0
 SPI_DEV  = 0
-SPI_MHZ  = 16
+SPI_MHZ  = 32
 
 # --- GPIO setup ---
 h = lgpio.gpiochip_open(0)
@@ -114,54 +115,46 @@ def wrap_text(draw, text, font, max_width):
     lines = []
 
     for paragraph in text.split("\n"):
-        words = paragraph.split(" ")
+        words_with_spaces = re.findall(r'\S+\s*', paragraph)  # keeps spaces after words
         current_line = ""
 
-        for word in words:
-            # Check if the word itself is too long
-            bbox = draw.textbbox((0, 0), word, font=font)
-            word_width = bbox[2] - bbox[0]
+        for chunk in words_with_spaces:
+            # Compute width
+            bbox = draw.textbbox((0, 0), chunk, font=font)
+            chunk_width = bbox[2] - bbox[0]
 
-            if word_width > max_width:
-                # First, flush any existing line
+            # If chunk too wide (long word), break character by character
+            if chunk_width > max_width:
                 if current_line:
                     lines.append(current_line)
                     current_line = ""
 
-                # Now break the long word
-                chunk = ""
-                for char in word:
-                    test_chunk = chunk + char
-                    bbox = draw.textbbox((0, 0), test_chunk, font=font)
-                    chunk_width = bbox[2] - bbox[0]
-
-                    if chunk_width <= max_width:
-                        chunk = test_chunk
+                subchunk = ""
+                for char in chunk:
+                    test_sub = subchunk + char
+                    bbox = draw.textbbox((0,0), test_sub, font=font)
+                    if bbox[2] - bbox[0] <= max_width:
+                        subchunk = test_sub
                     else:
-                        lines.append(chunk)
-                        chunk = char
-
-                if chunk:
-                    lines.append(chunk)
-
+                        lines.append(subchunk)
+                        subchunk = char
+                if subchunk:
+                    lines.append(subchunk)
                 continue
 
-            # Normal word wrapping
-            test_line = current_line + (" " if current_line else "") + word
-            bbox = draw.textbbox((0, 0), test_line, font=font)
-            line_width = bbox[2] - bbox[0]
-
-            if line_width <= max_width:
+            # Normal wrapping
+            test_line = current_line + chunk
+            bbox = draw.textbbox((0,0), test_line, font=font)
+            if bbox[2] - bbox[0] <= max_width:
                 current_line = test_line
             else:
                 if current_line:
                     lines.append(current_line)
-                current_line = word
+                current_line = chunk
 
+        # Append last line
         if current_line:
             lines.append(current_line)
-        else:
-            lines.append("")
 
     return lines
 
@@ -202,12 +195,10 @@ def draw_cursor(draw, x, y, line_height):
     draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)
 
 def get_cursor_x(draw, line, font, col, padding):
-        x = padding
-        for i in range(col):
-            char = line[i]
-            char_width = draw.textlength(char, font=font)
-            x += char_width
-        return x
+    x = padding
+    for i in range(min(col, len(line))):
+        x += draw.textlength(line[i], font=font)
+    return x
 
 def get_cursor_pos(lines, char_index):
     count = 0

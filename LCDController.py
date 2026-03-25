@@ -111,11 +111,38 @@ def display_image(img):
     
 def wrap_text(draw, text, font, max_width):
     lines = []
+
     for paragraph in text.split("\n"):
         words = paragraph.split(" ")
         current_line = ""
 
         for word in words:
+            # Check if the word itself is too long
+            bbox = draw.textbbox((0, 0), word, font=font)
+            word_width = bbox[2] - bbox[0]
+
+            if word_width > max_width:
+                # Break the word into chunks
+                chunk = ""
+                for char in word:
+                    test_chunk = chunk + char
+                    bbox = draw.textbbox((0, 0), test_chunk, font=font)
+                    chunk_width = bbox[2] - bbox[0]
+
+                    if chunk_width <= max_width:
+                        chunk = test_chunk
+                    else:
+                        if chunk:
+                            lines.append(chunk)
+                        chunk = char
+
+                if chunk:
+                    lines.append(chunk)
+
+                current_line = ""
+                continue
+
+            # Normal word wrapping
             test_line = current_line + (" " if current_line else "") + word
             bbox = draw.textbbox((0, 0), test_line, font=font)
             line_width = bbox[2] - bbox[0]

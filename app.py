@@ -22,7 +22,9 @@ def main():
     disSignal = True
     startup = True
     position = 0
-    viewWindow = [0, 29]
+    
+    MAX_VIEW = 29
+    viewWindow = [0, MAX_VIEW]
             
     
     """ FUNCTIONS """
@@ -77,12 +79,23 @@ def main():
         nonlocal viewWindow
         if viewWindow[1] < lcd_controller.maxLines:
             viewWindow = [viewWindow[0]+1, viewWindow[1]+1]
-            print("inc")
 
     def incrementViewWindow():
         nonlocal viewWindow
         if viewWindow[0] > 0:
             viewWindow = [viewWindow[0]-1, viewWindow[1]-1]
+            
+    def setStartViewWindow():
+        nonlocal viewWindow
+        viewWindow = [0, MAX_VIEW]
+
+    def setEndViewWindow():
+        nonlocal viewWindow
+        maxLines = lcd_controller.maxLines
+        if(maxLines < MAX_VIEW):
+            viewWindow = [0, MAX_VIEW]
+        else:
+            viewWindow = [maxLines - MAX_VIEW, maxLines]
             
     """ MAIN """
     
@@ -109,6 +122,8 @@ def main():
                     case readchar.key.ENTER     : updatePageState(PageState.INPUT_DISPLAY)
                     case readchar.key.UP        : incrementViewWindow()
                     case readchar.key.DOWN      : decrementViewWindow()
+                    case readchar.key.RIGHT     : setEndViewWindow()
+                    case readchar.key.LEFT      : setStartViewWindow()
 
         match pageState:
             case PageState.INPUT_DISPLAY:

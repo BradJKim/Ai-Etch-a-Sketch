@@ -38,11 +38,11 @@ class LCDController:
         self.output_file_handler = output_file_handler
         init_display()
 
-    def writeToScreen(self, text):
-        img = render_text(text)
+    def writeToScreen(self, text, position):
+        img = render_text(text, position)
         display_image(img)
 
-    def displayScreen(self, displayMode):
+    def displayScreen(self, displayMode, position):
         try:
             if displayMode not in [m.value for m in DisplayMode]:
                 raise ValueError(f"Invalid mode '{displayMode}'. Choose from: {DisplayMode}")
@@ -52,7 +52,8 @@ class LCDController:
             elif displayMode == DisplayMode.OUTPUT.value:
                 displayText = self.output_file_handler.readFile()
 
-            self.writeToScreen(displayText)
+            self.writeToScreen(displayText, position)
+            
             
             return True
         except Exception as e:
@@ -164,7 +165,7 @@ def wrap_text(draw, text, font, max_width):
 
     return lines
 
-def render_text(text):
+def render_text(text, char_index):
     img = Image.new("RGB", (WIDTH, HEIGHT), (0, 0, 0))
     draw = ImageDraw.Draw(img)
 
@@ -175,16 +176,39 @@ def render_text(text):
         font = ImageFont.load_default()
 
     padding = 12
-    line_height = 26
+    bbox = font.getbbox("Ay")
+    line_height = (bbox[3] - bbox[1]) + 4
 
     max_width = WIDTH - 2 * padding
     lines = wrap_text(draw, text.strip(), font, max_width)
 
+    cursor_line, cursor_col = get_cursor_pos(lines, char_index)
+
     y = padding
-    for line in lines:
+    for i, line in enumerate(lines):
         if y + line_height > HEIGHT - padding:
             break
         draw.text((padding, y), line, font=font, fill=(255, 255, 255))
+
+        if i == cursor_line:
+            x = get_cursor_x(draw, line, font, cursor_col, padding)
+            draw_cursor(draw, x, y, line_height)
+
         y += line_height
 
     return img
+
+def draw_cursor(draw, x, y, line_height):
+    draw.line((x, y, x, y + line_height), fill=(255, 255, 255), width=2)
+
+def get_cursor_x(draw, line, font, col, padding):
+    return padding + draw.textlength(line[:col], font=font)
+
+def get_cursor_pos(lines, char_index):
+    count = 0
+    for i, line in enumerate(lines):
+        if char_index <= count + len(line):
+            col = char_index - count
+            return i, col
+        count += len(line)
+    return len(lines) - 1, len(lines[-1])

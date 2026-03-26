@@ -1,0 +1,51 @@
+from evdev import InputDevice, categorize, ecodes
+
+EVDEV_TO_READCHAR = {
+    'KEY_A': 'a', 'KEY_B': 'b', 'KEY_C': 'c', 'KEY_D': 'd',
+    'KEY_E': 'e', 'KEY_F': 'f', 'KEY_G': 'g', 'KEY_H': 'h',
+    'KEY_I': 'i', 'KEY_J': 'j', 'KEY_K': 'k', 'KEY_L': 'l',
+    'KEY_M': 'm', 'KEY_N': 'n', 'KEY_O': 'o', 'KEY_P': 'p',
+    'KEY_Q': 'q', 'KEY_R': 'r', 'KEY_S': 's', 'KEY_T': 't',
+    'KEY_U': 'u', 'KEY_V': 'v', 'KEY_W': 'w', 'KEY_X': 'x',
+    'KEY_Y': 'y', 'KEY_Z': 'z',
+
+    'KEY_0': '0', 'KEY_1': '1', 'KEY_2': '2', 'KEY_3': '3',
+    'KEY_4': '4', 'KEY_5': '5', 'KEY_6': '6', 'KEY_7': '7',
+    'KEY_8': '8', 'KEY_9': '9',
+
+    'KEY_SPACE': ' ',
+    'KEY_ENTER': '\n',
+    'KEY_BACKSPACE': '\x7f',
+    'KEY_TAB': '\t',
+    'KEY_ESC': '\x1b',
+
+    # Arrow keys (readchar constants)
+    'KEY_UP': '\x1b[A',
+    'KEY_DOWN': '\x1b[B',
+    'KEY_RIGHT': '\x1b[C',
+    'KEY_LEFT': '\x1b[D',
+
+    # Function keys
+    'KEY_F1': '\x1bOP',  'KEY_F2': '\x1bOQ',
+    'KEY_F3': '\x1bOR',  'KEY_F4': '\x1bOS',
+    'KEY_F5': '\x1b[15~', 'KEY_F6': '\x1b[17~',
+    'KEY_F7': '\x1b[18~', 'KEY_F8': '\x1b[19~',
+    'KEY_F9': '\x1b[20~', 'KEY_F10': '\x1b[21~',
+    'KEY_F11': '\x1b[23~', 'KEY_F12': '\x1b[24~',
+}
+
+class KeyboardController:
+    def __init__(self, device='/dev/input/event0'):
+        self.device = InputDevice(device)
+
+    def grabInputChar(self):
+        try:
+            for event in self.device.read_loop():
+                if event.type == ecodes.EV_KEY:
+                    key_event = categorize(event)
+                    if key_event.keystate == key_event.key_down:
+                        keycode = key_event.keycode
+                        return EVDEV_TO_READCHAR.get(keycode, None)
+        except Exception as e:
+            print("Keyboard Controller Error:", e)
+            return False
